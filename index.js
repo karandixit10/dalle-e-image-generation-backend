@@ -23,7 +23,7 @@ const startServer = async () => {
   try {
     await connectDb(process.env.MONGODB_URL);
     app.listen(8080, () =>
-      console.log("Server is running on port http://localhost:8080")
+      console.log("Server is running on port https://dalle-e-image-generation-backend.onrender.com")
     );
   } catch (e) {
     console.log(e);
