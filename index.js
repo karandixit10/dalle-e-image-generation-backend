@@ -16,18 +16,17 @@ app.use("/api/v1/posts", postRoutes);
 app.use("/api/v1/dalle", dalleRoutes);
 
 app.get("/", async (req, res) => {
-  res.send("Hello from DALL-E!");
+  res.send("Hello from Gooey.ai!");
 });
 
-const startServer = async (req, res) => {
+const startServer = async () => {
   try {
-    connectDb(process.env.MONGODB_URL);
+    await connectDb(process.env.MONGODB_URL);
     app.listen(8080, () =>
       console.log("Server is running on port http://localhost:8080")
     );
   } catch (e) {
     console.log(e);
-    res.status(500).send("Something went wrong");
   }
 };
 
