@@ -98,9 +98,6 @@ const getProfile = (req, res) => {
   });
 };
 
-export default getProfile;
-
-
 const logoutUser = (req, res) => {
   try {
     // Clear the JWT token from the client-side (cookie)
