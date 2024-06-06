@@ -81,18 +81,40 @@ const loginUser = async (req, res) => {
 };
 
 const getProfile = (req, res) => {
-	const {token} = req.cookies
-	if(token){
-		jwt.verify(token, process.env.JWT_SECRET, {}, (err, user) => {
-			if(err){
-				throw err;
-			}
-			res.status(200).json(user);
-		})
-	}
-	else{
-		res.status(401).json({message: 'Unauthorized'})
-	}
+  const { token } = req.cookies;
+
+  if (!token) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+
+  jwt.verify(token, process.env.JWT_SECRET, {}, (err, user) => {
+    if (err) {
+      // Handle JWT verification errors
+      console.error("JWT verification error:", err);
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+    // If JWT verification is successful, return user data
+    res.status(200).json(user);
+  });
 };
 
-export { test, registerUser, loginUser, getProfile };
+export default getProfile;
+
+
+const logoutUser = (req, res) => {
+  try {
+    // Clear the JWT token from the client-side (cookie)
+    res.clearCookie('token');
+
+    // Optionally, you can also clear any server-side sessions or state associated with the user
+    // Example: You may want to remove any cached data or reset the user's session
+
+    res.status(200).json({ message: 'Logout successful' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
+
+
+export { test, registerUser, loginUser, getProfile, logoutUser };
