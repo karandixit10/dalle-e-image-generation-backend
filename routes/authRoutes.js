@@ -1,7 +1,6 @@
-// routes/authRoutes.js
 import express from "express";
 import cors from "cors";
-import { test, registerUser, loginUser } from "../controllers/authController.js";
+import { test, registerUser, loginUser, getProfile } from "../controllers/authController.js";
 
 const router = express.Router();
 
@@ -17,5 +16,6 @@ router.use(
 router.get('/', test);
 router.post('/register', registerUser);
 router.post('/login', loginUser);
+router.get('/profile', getProfile);
 
 export default router;
