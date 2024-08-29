@@ -60,44 +60,54 @@ export const dashboard = async (req, res) => {
 };
 
 // Get all users function
-export const getAllUsers = async (req, res) => {
-  // Retrieve all users from the database
-  let users = await User.find({});
-
-  // Respond with the list of users
-  return res.status(200).json({ users });
+export const getAllUsers = (req, res) => {
+	const {token} = req.cookies
+	if(token){
+		jwt.verify(token, process.env.JWT_SECRET, {}, (err, user) => {
+			if(err){
+				throw err;
+			}
+			res.status(200).json(user);
+		})
+	}
+	else{
+		res.status(401).json({message: 'Unauthorized'})
+	}
 };
 
 // Register function
 export const registerUser = async (req, res) => {
-  // Check if the user with the provided email already exists
-  let user = await User.findOne({ email: req.body.email });
-  if (user === null) {
-    let { username, email, password } = req.body;
-    
-    // Check if all required fields are provided
-    if (username.length && email.length && password.length) {
-      // Create a new user
-      const person = new User({
-        name: username,
-        email: email,
-        password: password,
-      });
-      
-      // Save the new user to the database
-      await person.save();
-      
-      // Respond with the created user
-      return res.status(201).json({ person });
-    } else {
-      // Respond with error message if required fields are missing
-      return res.status(400).json({ msg: "Please add all values in the request body" });
-    }
-  } else {
-    // Respond with error message if email is already in use
-    return res.status(400).json({ msg: "Email already in use" });
+  try {
+      const { name, email, password } = req.body;
+
+      // Validation for name
+      if (!name) {
+          return res.status(400).json({ message: 'Name is required' });
+      }
+
+      // Validation for password
+      if (!password || password.length < 6) {
+          return res.status(400).json({ message: 'Password must be at least 6 characters' });
+      }   
+
+      // Check if the email already exists
+      const exist = await UserSchema.findOne({ email });
+      if (exist) {
+          return res.status(400).json({ message: 'Email already exists' });
+      }   
+
+      //Encrpt Password
+      const hashedPassword = await hashPassword(password);
+
+      // Create new user
+      const user = await UserSchema.create({ name, email, password : hashedPassword });
+
+      return res.status(201).json(user); // Return status 201 for successful creation
+  } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: 'Internal Server Error' }); // Return status 500 for internal server error
   }
-};
+}
 
 export const logoutUser = (req, res) => {
   // Clear token from client's cookies or session storage
